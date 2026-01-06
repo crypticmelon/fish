@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fishy AI 🐟</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<!-- THINKING OVERLAY -->
+<div id="thinkingOverlay">
+    <div class="thinkingText">🐟 FISHY IS THINKING 🐠</div>
+    <div class="loader"></div>
+    <div class="emojiParticles">
+        <span>🐡</span>
+        <span>🐠</span>
+        <span>🦑</span>
+        <span>🐟</span>
+        <span>🦀</span>
+        <span>🐙</span>
+        <span>🦐</span>
+    </div>
+</div>
+
+<!-- MAIN CONTAINER -->
+<div class="container" id="mainContainer">
+    <h1>Fishy AI 🐟</h1>
+
+    <div id="inputCard" class="card">
+        <input type="text" id="userInput" placeholder="Say something to Fishy...">
+        <button onclick="sendToFishy()">Ask Fishy</button>
+    </div>
+
+    <div id="resultCard" class="card hidden">
+        <h2>🐠 Fishy says:</h2>
+        <div id="outputTextContainer">
+            <p id="outputText"></p>
+        </div>
+        <button onclick="resetUI()">Back</button>
+    </div>
+</div>
+
+<script>
+function showThinking() {
+    document.getElementById("thinkingOverlay").classList.add("active");
+}
+
+function hideThinking() {
+    document.getElementById("thinkingOverlay").classList.remove("active");
+}
+
+function showResult(text) {
+    document.getElementById("outputText").innerText = text;
+    document.getElementById("inputCard").classList.add("hidden");
+    document.getElementById("resultCard").classList.remove("hidden");
+}
+
+function resetUI() {
+    document.getElementById("resultCard").classList.add("hidden");
+    document.getElementById("inputCard").classList.remove("hidden");
+    document.getElementById("userInput").value = "";
+    document.getElementById("userInput").focus();
+}
+
+function sendToFishy() {
+    const input = document.getElementById("userInput").value.trim();
+    if (!input) return;
+
+    showThinking();
+
+    fetch("/ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user_input: input })
+    })
+    .then(res => {
+        if (!res.ok) throw new Error("Server error");
+        return res.json();
+    })
+    .then(data => {
+        hideThinking();
+        showResult(data.output);
+    })
+    .catch(() => {
+        hideThinking();
+        showResult("Fishy got confused 🐟");
+    });
+}
+</script>
+
+</body>
+</html>
